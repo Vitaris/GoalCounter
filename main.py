@@ -24,7 +24,7 @@ def callback1(pin, pressed, duration_ms):
     matrix.show_number(score_1, offset=1)
 
 if __name__ == "__main__":
-    matrix = matrix_8x8(28, 2, brightness=0.02)
+    matrix = matrix_8x8(28, 2, brightness=0.2)
     matrix.show_number(0)
     matrix.show_number(0, offset=1)
 
