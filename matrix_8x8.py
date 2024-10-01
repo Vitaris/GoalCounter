@@ -34,6 +34,9 @@ class matrix_8x8:
 
         self.ws2812.pixels_show()
 
+    def change_brightness(self, brightness):
+        self.ws2812.brightness = brightness
+
     def _translate_4x8_to_led(self, symbol):
         return [
             symbol[31], symbol[27], symbol[23], symbol[19], symbol[15], symbol[11], symbol[ 7], symbol[ 3],
