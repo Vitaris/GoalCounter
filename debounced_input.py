@@ -3,12 +3,13 @@ import time
 
 class DebouncedInput:
     """Micropython Debounced GPIO Input Class"""
-    def __init__(self, pin_num, callback, pin_pull=None, pin_logic_pressed=True, debounce_ms=100):
+    def __init__(self, pin_num, callback_pressed, callback_pressed_long, pin_pull=None, pin_logic_pressed=True, debounce_ms=100):
         self.pin_num = pin_num
         self.pin_pull = pin_pull
         self.pin_logic_pressed = pin_logic_pressed
         self.debounce_ms = debounce_ms
-        self.callback = callback
+        self.callback_pressed = callback_pressed
+        self.callback_pressed_long = callback_pressed_long
         self.last_release_ms = 0
         self.last_press_ms = 0
 
@@ -35,13 +36,13 @@ class DebouncedInput:
                 ms_since_last_press = 0
             else:
                 ms_since_last_press = time.ticks_diff(self.last_press_ms, self.last_release_ms) + 2*self.debounce_ms
-            self.callback(self.pin_num, True, ms_since_last_press)
+            self.callback_pressed(self.pin_num, True, ms_since_last_press)
         elif ((self.expected_value == False) and (current_value == False)):
             #print("Button released")
             self.expected_value = True
             self.last_release_ms = time.ticks_ms()
             ms_duration_of_press = time.ticks_diff(self.last_release_ms, self.last_press_ms) + 2*self.debounce_ms
-            self.callback(self.pin_num, False, ms_duration_of_press)
+            self.callback_pressed(self.pin_num, False, ms_duration_of_press)
         #else:
             #print("Missed edge: expected:", self.expected_value, " actual:", current_value)
             
