@@ -9,6 +9,7 @@ BLUE = (0, 0, 255)
 PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
 COLORS = (RED, YELLOW, ORANGE, GREEN, CYAN, BLUE, PURPLE, WHITE)
+color_list = [RED, YELLOW, ORANGE, GREEN, CYAN, BLUE, PURPLE]
 
 # Digits
 raw_digits = {

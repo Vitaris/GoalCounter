@@ -8,32 +8,44 @@ import random
 
 # Define button press/release callback
 def callback0(pin, pressed, duration_ms):
-    global score_0
+    global speed
     if (pressed):
-        score_0 += 1
-    if score_0 > 99:
-        score_0 = 0
-    matrix.show_number(score_0)
+        if speed < 30:
+            speed += 2
 
 def callback1(pin, pressed, duration_ms):
-    global score_1
+    global speed
     if (pressed):
-        score_1 += 1
-    if score_1 > 99:
-        score_1 = 0
-    matrix.show_number(score_1, offset=1)
+        if speed > 6:
+            speed -= 2
 
 if __name__ == "__main__":
-    matrix = matrix_8x8(28, 2, brightness=0.2)
-    matrix.show_number(0)
-    matrix.show_number(0, offset=1)
+    matrix = matrix_8x8(28, 2, brightness=0.01)
 
-    score_0 = 0
-    score_1 = 0
+    speed = 20
+    # button0 = DebouncedInput(0, callback0, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
+    # button1 = DebouncedInput(1, callback1, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
 
-    button0 = DebouncedInput(0, callback0, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
-    button1 = DebouncedInput(1, callback1, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
+    k = 0
+    direction = 18
+    color_0 = GREEN
+    color_1 = RED
     
     while True:
-        time.sleep_ms(100)
+        # time.sleep_ms(100)
+        k += speed * direction
+
+        if k < 0:
+            k = 0
+            direction = 1
+            color_0 = random.choice(color_list)
+            color_1 = random.choice(color_list)
+        elif k > 100:
+            k = 100
+            direction = -1
+
+        matrix.change_brightness(k * 0.001)
+
+        matrix.show_symbol(circle, color=color_0)
+        matrix.show_symbol(circle, color=color_1, offset=1)
     
