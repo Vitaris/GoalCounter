@@ -3,13 +3,13 @@ import time
 
 class DebouncedInput:
     """Micropython Debounced GPIO Input Class"""
-    def __init__(self, pin_num, callback_pressed, callback_pressed_long, pin_pull=None, pin_logic_pressed=True, debounce_ms=100):
+    def __init__(self, pin_num, callback_pressed, pin_pull=None, pin_logic_pressed=True, debounce_ms=100):
         self.pin_num = pin_num
         self.pin_pull = pin_pull
         self.pin_logic_pressed = pin_logic_pressed
         self.debounce_ms = debounce_ms
         self.callback_pressed = callback_pressed
-        self.callback_pressed_long = callback_pressed_long
+        # self.callback_pressed_long = callback_pressed_long
         self.last_release_ms = 0
         self.last_press_ms = 0
 
