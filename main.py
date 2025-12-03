@@ -22,7 +22,7 @@ def callback1(pin, pressed, duration_ms):
 if __name__ == "__main__":
     matrix = matrix_8x8(28, 2, brightness=0.01)
 
-    speed = 20
+    speed = 15
     # button0 = DebouncedInput(0, callback0, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
     # button1 = DebouncedInput(1, callback1, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         k += speed * direction
 
         if k < 0:
-            k = 0
+            k = 50
             direction = 1
             color_0 = random.choice(color_list)
             color_1 = random.choice(color_list)
@@ -44,8 +44,8 @@ if __name__ == "__main__":
             k = 100
             direction = -1
 
-        matrix.change_brightness(k * 0.001)
+        matrix.change_brightness(k * 0.01)
 
-        matrix.show_symbol(circle, color=color_0)
-        matrix.show_symbol(circle, color=color_1, offset=1)
+        matrix.show_symbol(square, color=color_0)
+        matrix.show_symbol(square, color=color_1, offset=1)
     
