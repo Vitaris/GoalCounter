@@ -15,13 +15,13 @@ class matrix_8x8:
         if show:
             self.ws2812.pixels_show()
 
-    def show_symbol(self, symbol, offset=0, color=WHITE, backround=BLACK):
+    def show_symbol(self, symbol, offset=0, color=WHITE, backround=BLACK, show=True):
         offset *= 64
         matrix = self._translate_8x8_to_led(symbol)
         self._set_none_or_color(matrix, 0, offset, color, backround)
-        self.ws2812.pixels_show()
-
-    def show_number(self, number, offset=0, color=WHITE, backround=BLACK):
+        if show:
+            self.ws2812.pixels_show()
+    def show_number(self, number, offset=0, color=WHITE, backround=BLACK, show=True):
         offset *= 64
         if number < 0 and number > 99 :
             print(f'Given number is outside range 0-99: {number}')
@@ -40,7 +40,8 @@ class matrix_8x8:
             matrix = self._translate_4x8_to_led(raw_blank)
             self._set_none_or_color(matrix, i, offset, color, backround)
 
-        self.ws2812.pixels_show()
+        if show:
+            self.ws2812.pixels_show()
 
     def change_brightness(self, brightness):
         self.ws2812.brightness = brightness

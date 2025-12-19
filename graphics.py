@@ -205,3 +205,4 @@ square = [
     ]
 
 SYMBOLS = (circle, triangle, smile, sad, heart, walk, no_walk, square)
+symbols_list = [circle, triangle, smile, sad, heart, walk, no_walk, square]
