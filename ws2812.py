@@ -51,4 +51,8 @@ class ws2812:
 
     def pixel_set(self, i, color):
         self.ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
- 
+
+    def pixels_fill_range(self, start, count, color):
+        val = (color[1]<<16) + (color[0]<<8) + color[2]
+        for i in range(start, start + count):
+            self.ar[i] = val

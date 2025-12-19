@@ -8,19 +8,18 @@ import micropython
 class matrix_8x8:
     def __init__(self, pin_num, matrixes=1, brightness=1.0):
         self.ws2812 = ws2812(matrixes*64, pin_num, brightness)
-        self.time_shown = False
+
+    def fill(self, color, offset=0, show=True):
+        offset *= 64
+        self.ws2812.pixels_fill_range(offset, 64, color)
+        if show:
+            self.ws2812.pixels_show()
 
     def show_symbol(self, symbol, offset=0, color=WHITE, backround=BLACK):
         offset *= 64
         matrix = self._translate_8x8_to_led(symbol)
         self._set_none_or_color(matrix, 0, offset, color, backround)
-        if not self.time_shown:
-            start = time.ticks_us()
-            self.ws2812.pixels_show()
-            print(f'Show pixels: {time.ticks_diff(time.ticks_us(), start)} us')
-            self.time_shown = True
-        else:
-            self.ws2812.pixels_show()
+        self.ws2812.pixels_show()
 
     def show_number(self, number, offset=0, color=WHITE, backround=BLACK):
         offset *= 64
