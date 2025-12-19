@@ -25,25 +25,30 @@ class ws2812:
         self.brightness = brightness
         self.sm = rp2.StateMachine(0, ws2812_asm, freq=8_000_000, sideset_base=Pin(pin_num, Pin.PULL_DOWN))
         self.ar = array.array("I", [0 for _ in range(self.num_leds)])
+        # Pre-allocate the array to avoid creating it every time pixels_show is called
+        self.dimmer_ar = array.array("I", [0 for _ in range(self.num_leds)])
         self.sm.active(1)
 
+    @micropython.viper
+    def _pixels_show_viper(self, bri: int):
+        # Viper worker: handles the heavy loop with raw pointers
+        ar_ptr = ptr32(self.ar)
+        dimmer_ar_ptr = ptr32(self.dimmer_ar)
+        n = int(self.num_leds)
+        
+        for i in range(n):
+            c = ar_ptr[i]
+            r = ((c >> 8) & 0xFF) * bri >> 8
+            g = ((c >> 16) & 0xFF) * bri >> 8
+            b = (c & 0xFF) * bri >> 8
+            dimmer_ar_ptr[i] = (g << 16) | (r << 8) | b
+
     def pixels_show(self):
-        dimmer_ar = array.array("I", [0 for _ in range(self.num_leds)])
-        for i,c in enumerate(self.ar):
-            r = int(((c >> 8) & 0xFF) * self.brightness)
-            g = int(((c >> 16) & 0xFF) * self.brightness)
-            b = int((c & 0xFF) * self.brightness)
-            dimmer_ar[i] = (g<<16) + (r<<8) + b
-        self.sm.put(dimmer_ar, 8)
-        time.sleep_ms(10)
+        # Standard Python wrapper: handles float math and object calls
+        bri = int(self.brightness * 256)
+        self._pixels_show_viper(bri)
+        self.sm.put(self.dimmer_ar, 8)
 
     def pixel_set(self, i, color):
         self.ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
-
-    def pixels_fill(self, color):
-        for i in range(len(self.ar)):
-            self.pixel_set(i, color)
-
-    def pixels_fill_range(self, start, num_elements, color):
-        for i in range(start, num_elements, 1):
-            self.pixel_set(i, color)
+ 

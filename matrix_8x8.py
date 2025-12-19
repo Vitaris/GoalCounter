@@ -1,17 +1,26 @@
 from machine import Pin
 from ws2812 import ws2812
 from graphics import *
+import time
+import micropython
 
 
 class matrix_8x8:
     def __init__(self, pin_num, matrixes=1, brightness=1.0):
         self.ws2812 = ws2812(matrixes*64, pin_num, brightness)
+        self.time_shown = False
 
     def show_symbol(self, symbol, offset=0, color=WHITE, backround=BLACK):
         offset *= 64
         matrix = self._translate_8x8_to_led(symbol)
         self._set_none_or_color(matrix, 0, offset, color, backround)
-        self.ws2812.pixels_show()
+        if not self.time_shown:
+            start = time.ticks_us()
+            self.ws2812.pixels_show()
+            print(f'Show pixels: {time.ticks_diff(time.ticks_us(), start)} us')
+            self.time_shown = True
+        else:
+            self.ws2812.pixels_show()
 
     def show_number(self, number, offset=0, color=WHITE, backround=BLACK):
         offset *= 64
@@ -57,10 +66,26 @@ class matrix_8x8:
             symbol[ 0], symbol[ 8], symbol[16], symbol[24], symbol[32], symbol[40], symbol[48], symbol[56]
         ]
 
+    @micropython.viper
+    @staticmethod
+    def _set_pixels_viper(ar: ptr32, matrix: ptr8, length: int, start_idx: int, c_int: int, bg_int: int):
+        # Native code loop: extremely fast, no python overhead
+        for j in range(length):
+            if matrix[j]:
+                ar[start_idx + j] = c_int
+            else:
+                ar[start_idx + j] = bg_int
+
     def _set_none_or_color(self, matrix, i, offset, color, backround):
-        lenght = len(matrix)
-        for pixel in range(len(matrix)):
-            if matrix[pixel] == 1:
-                self.ws2812.pixel_set(pixel + (i * lenght) + offset, color)
-            elif matrix[pixel] == 0:
-                self.ws2812.pixel_set(pixel + (i * lenght) + offset, backround)
+        # Pre-calculate colors (GRB format for WS2812)
+        c_int = (color[1] << 16) | (color[0] << 8) | color[2]
+        bg_int = (backround[1] << 16) | (backround[0] << 8) | backround[2]
+        
+        # Convert list to bytes so Viper can access it as a raw pointer
+        matrix_bytes = bytes(matrix)
+        length = len(matrix_bytes)
+        start_idx = (i * length) + offset
+        
+        # Pass the raw array buffer and bytes buffer to the Viper worker
+        # Changed .pixels to .ar to match the ws2812 class definition
+        self._set_pixels_viper(self.ws2812.ar, matrix_bytes, length, start_idx, c_int, bg_int)
