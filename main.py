@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     # Formula: speed = distance / frames = 1.5 / 27.27 = ~0.055
     speed = 0.055
-    
+
     brightness = 0
     dimm = 1.0
     direction = 1 # 1 = increasing, -1 = decreasing
@@ -71,6 +71,8 @@ if __name__ == "__main__":
             brightness += speed * direction
             if brightness < 0:
                 brightness = 0.5
+                if speed < 0.02:
+                    brightness = 0.0
                 direction = 1
                 color_0 = random.choice(color_list)
                 color_1 = random.choice(color_list)
