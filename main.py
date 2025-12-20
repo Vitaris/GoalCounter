@@ -1,7 +1,7 @@
 import time
 from machine import Pin, Timer
 from matrix_8x8 import matrix_8x8
-from graphics import *
+from graphics import color_list, square
 import random
 import micropython
 
@@ -27,13 +27,20 @@ if __name__ == "__main__":
     timer = Timer(-1)
     timer.init(period=20, mode=Timer.PERIODIC, callback=on_timer)
 
-    speed = 0.05
-    k = 0
-    direction = 18
-    color_0 = GREEN
-    color_1 = RED
-    symbol = random.choice(symbols_list)
-    number = random.randint(0, 99)
+    # Pulse strat value to top brightness and back down to 0
+    # If it strats from 50% brightness to 0%, its distance = 1.5
+
+    # Time for 110 BPM: 60/110 = 0.545s per beat
+    # Frames per beat: 0.545s / 0.02s (50FPS) = 27.27 frames
+
+    # Formula: speed = distance / frames = 1.5 / 27.27 = ~0.055
+    speed = 0.055
+    
+    brightness = 0
+    dimm = 1.0
+    direction = 1 # 1 = increasing, -1 = decreasing
+    color_0 = random.choice(color_list)
+    color_1 = random.choice(color_list)
 
     i = 0
     start_time = time.ticks_ms()
@@ -48,34 +55,34 @@ if __name__ == "__main__":
             
             # 1. Poll buttons
             now = time.ticks_ms()
-            if time.ticks_diff(now, last_btn_check) > 50:
+            if time.ticks_diff(now, last_btn_check) >= 50:
                 if not btn_inc.value():
-                    if speed < 1: speed += 0.01
-                    print(f"Speed increased: {speed:.2f}")
+                    if speed < 0.2: speed += 0.001
+                    print(f"Speed increased: {speed:.5f}")
+
                 if not btn_dec.value():
-                    if speed > 0.02: speed -= 0.01
-                    print(f"Speed decreased: {speed:.2f}")
+                    if speed > 0.0: speed -= 0.001
+                    if speed < 0.0: speed = 0.0
+                    print(f"Speed decreased: {speed:.5f}")
+
                 last_btn_check = now
 
             # 2. Animation Logic
-            k += speed * direction
-            if k < 0:
-                k = 0
+            brightness += speed * direction
+            if brightness < 0:
+                brightness = 0.5
                 direction = 1
                 color_0 = random.choice(color_list)
                 color_1 = random.choice(color_list)
-                symbol = random.choice(symbols_list)
-                number = random.randint(0, 99)
-            elif k > 10:
-                k = 10
+            elif brightness > 1:
+                brightness = 1
                 direction = -1
 
-            matrix.change_brightness(k * 0.01)
-
+            matrix.change_brightness(brightness * dimm)
             # 3. Render
             # This happens immediately after the tick, so we have ~10ms before the next one
-            matrix.show_symbol(symbol, color=color_0, show=False)
-            matrix.show_number(number, color=color_1, offset=1, show=True)
+            matrix.show_symbol(square, color=color_0, show=False, )
+            matrix.show_symbol(square, color=color_1, offset=1, show=True)
             
             # 4. FPS Counter
             i += 1
