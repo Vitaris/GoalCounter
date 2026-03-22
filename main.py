@@ -31,8 +31,8 @@ if __name__ == "__main__":
     score_0 = 0
     score_1 = 0
 
-    button0 = DebouncedInput(0, callback0, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
-    button1 = DebouncedInput(1, callback1, debounce_ms=20, pin_pull=Pin.PULL_DOWN)
+    button0 = DebouncedInput(1, callback0, debounce_ms=20, pin_pull=Pin.PULL_UP)
+    button1 = DebouncedInput(14, callback1, debounce_ms=20, pin_pull=Pin.PULL_UP)
     
     while True:
         time.sleep_ms(100)
