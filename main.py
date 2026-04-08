@@ -1,39 +1,38 @@
 import time
 from machine import Pin
-from debounced_input import DebouncedInput
 from matrix_8x8 import matrix_8x8
+from button import Button
 from graphics import *
 import utime
 import random
 
 # Define button press/release callback
-def callback0(pin, pressed, duration_ms):
+def score_0_callback():
     global score_0
-    if (pressed):
-        score_0 += 1
-    if score_0 > 99:
-        score_0 = 0
-    matrix.show_number(score_0)
+    score_0 = (score_0 + 1) % 100
 
-def callback1(pin, pressed, duration_ms):
+def score_0_hold_callback():
+    global score_0
+    score_0 = (score_0 - 1) % 100
+
+def score_1_callback():
     global score_1
-    if (pressed):
-        score_1 += 1
-    if score_1 > 99:
-        score_1 = 0
-    matrix.show_number(score_1, offset=1)
+    score_1 = (score_1 + 1) % 100
+
+def score_1_hold_callback():
+    global score_1
+    score_1 = (score_1 - 1) % 100
 
 if __name__ == "__main__":
     matrix = matrix_8x8(28, 2, brightness=0.2)
-    matrix.show_number(0)
-    matrix.show_number(0, offset=1)
 
     score_0 = 0
     score_1 = 0
 
-    button0 = DebouncedInput(1, callback0, debounce_ms=20, pin_pull=Pin.PULL_UP)
-    button1 = DebouncedInput(14, callback1, debounce_ms=20, pin_pull=Pin.PULL_UP)
+    button0 = Button(1, score_0_callback, hold_callback=score_0_hold_callback)
+    button1 = Button(14, score_1_callback, hold_callback=score_1_hold_callback)
     
     while True:
-        time.sleep_ms(100)
-    
+        Button.update_all()
+        matrix.show_number(score_0)
+        matrix.show_number(score_1, offset=1)
