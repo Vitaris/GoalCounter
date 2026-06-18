@@ -23,6 +23,11 @@ def score_1_hold_callback():
     global score_1
     score_1 = (score_1 - 1) % 100
 
+def reset_scores():
+    global score_0, score_1
+    score_0 = 0
+    score_1 = 0
+
 if __name__ == "__main__":
     matrix = matrix_8x8(28, 2, brightness=0.2)
 
@@ -31,6 +36,7 @@ if __name__ == "__main__":
 
     button0 = Button(1, score_0_callback, hold_callback=score_0_hold_callback)
     button1 = Button(14, score_1_callback, hold_callback=score_1_hold_callback)
+    Button.register_combo(button0, button1, reset_scores)
     
     while True:
         Button.update_all()

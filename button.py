@@ -9,6 +9,7 @@ class ButtonState:
 
 class Button:
     instances = []
+    combos = []
     last_btn_check = ticks_ms()
     DEBOUNCE_INTERVAL = 30 # milliseconds
     HOLD_INTERVAL = 1000 # milliseconds
@@ -60,9 +61,21 @@ class Button:
         self.is_enabled = enabled
 
     @classmethod
+    def register_combo(cls, button_a, button_b, callback, args=()):
+        cls.combos.append({'buttons': (button_a, button_b), 'callback': callback, 'args': args, 'executed': False})
+
+    @classmethod
     def update_all(cls):
         for button in cls.instances:
             button.compute()
+        for combo in cls.combos:
+            a, b = combo['buttons']
+            if a.state == ButtonState.HELD and b.state == ButtonState.HELD:
+                if not combo['executed']:
+                    combo['callback'](*combo['args'])
+                    combo['executed'] = True
+            else:
+                combo['executed'] = False
 
 
 
